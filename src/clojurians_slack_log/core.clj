@@ -77,11 +77,14 @@
 ;;; write all extracted messages into channel-named file.
 (defn channel-messages
   "Extract all message a in channel's all dates and write into channel-named file."
-  [[channel-name channel-url]]
-  (map #(with-open [f (io/reader (str channel-name ".txt"))]
-          (spit f (channel-date-log %))
-          (prn (format "Log of channel %s: finished.") channel-name))
-       (map second (channel-log-dates channel-url))))
+  [{channel-name :name channel-url :url}]
+  (map #(let [filename (str channel-name ".txt")]
+          (spit filename (channel-date-log %) :append true))
+       (map :url (channel-log-dates channel-url)))
+  (prn (format "Log of channel %s: finished." channel-name)))
+
+(comment
+  (channel-messages {:name "beginners" :url url-channel-beginners}))
 
 (defn -main
   "Run the crawler program."
