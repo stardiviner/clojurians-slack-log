@@ -30,9 +30,9 @@
   "Extract all channels from index page."
   []
   (map #(hash-map
-         (string/replace (html/text %) "# " "") ; channel name: "# clojure" -> "clojure"
-         (str url-index ; construct to complete URL
-              (first (html/attr-values % :href))))
+         :name (string/replace (html/text %) "# " "") ; channel name: "# clojure" -> "clojure"
+         :url (str url-index ; construct to complete URL
+                   (first (html/attr-values % :href))))
        (html/select (html/html-snippet (fetch-html url-channels))
                     [:div.main :ul :li :a])))
 
@@ -46,7 +46,7 @@
   (map #(let [date (html/text %) ; date
               url  (str url-index                ; construct to complete URL
                         (first (html/attr-values % :href)))]
-          [date url])
+          {:date date :url url})
        (html/select
         (html/html-snippet (fetch-html url-channel-beginners))
         [:div.main :ul :li :a])))
