@@ -88,9 +88,11 @@
   "Extract all message a in channel's all dates and write into channel-named file."
   [{channel-name :name channel-url :url}]
   (map #(map (fn [message]
-               (spit (str channel-name ".txt")
-                     (compose-message message)
-                     :append true))
+               (let [filename (str "log_files/" channel-name ".txt")]
+                 (io/make-parents filename)
+                 (spit filename
+                       (compose-message message)
+                       :append true)))
              (channel-date-log %))
        (map :url (channel-log-dates channel-url)))
   (prn (format "Log of channel %s: finished." channel-name)))
