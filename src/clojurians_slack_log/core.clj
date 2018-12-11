@@ -82,3 +82,7 @@
           (spit f (channel-date-log %)))
        (map second (channel-log-dates channel-url))))
 
+(defn -main
+  "Run the crawler program."
+  []
+  (map channel-messages (all-channels)))
