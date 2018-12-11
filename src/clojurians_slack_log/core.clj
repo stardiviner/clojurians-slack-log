@@ -15,3 +15,7 @@
 (defonce url-channel-ring "https://clojurians-log.clojureverse.org/ring")
 (defonce url-channel-reagent "https://clojurians-log.clojureverse.org/reagent")
 
+(defn fetch-html
+  "A helper function to fetch URL's page as HTML"
+  [url]
+  (:body (http/get url)))
