@@ -63,9 +63,10 @@
   (map
    #(let [username  (html/text (first (html/select % [:a.message_username])))
           timestamp (html/text (first (html/select % [:span.message_timestamp :a])))
-          header    (str username "  " timestamp)
-          message   (html/text (second (html/select % [:p])))]
-      [header message])
+          content   (html/text (second (html/select % [:p])))]
+      {:username  username
+       :timestamp timestamp
+       :content   content})
    (html/select                         ; all messages
     (html/html-snippet (fetch-html date-url))
     [:div.message-history :div.message])))
@@ -74,12 +75,23 @@
 (comment
   (channel-date-log "https://clojurians-log.clojureverse.org/beginners/2018-12-02"))
 
+(defn compose-message
+  "Compose username, timestamp and message content into a formatted message."
+  [{username :username timestamp :timestamp content :content}]
+  (str "---------------------------------------------------------------\n"
+       (str "> " username "  " timestamp "\n")
+       "---------------------------------------------------------------\n"
+       (str content "\n")))
+
 ;;; write all extracted messages into channel-named file.
 (defn channel-messages
   "Extract all message a in channel's all dates and write into channel-named file."
   [{channel-name :name channel-url :url}]
-  (map #(let [filename (str channel-name ".txt")]
-          (spit filename (channel-date-log %) :append true))
+  (map #(map (fn [message]
+               (spit (str channel-name ".txt")
+                     (compose-message message)
+                     :append true))
+             (channel-date-log %))
        (map :url (channel-log-dates channel-url)))
   (prn (format "Log of channel %s: finished." channel-name)))
 
