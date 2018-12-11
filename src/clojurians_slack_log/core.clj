@@ -2,6 +2,8 @@
   (:require [clj-http.client :as http]
             [net.cgrand.enlive-html :as html]
             [clojure.string :as string]
+            [clojure.java.io :as io]))
+
 ;;; Define URLS
 (defonce url-index "https://clojurians-log.clojureverse.org/")
 (defonce url-channels "https://clojurians-log.clojureverse.org/")
@@ -71,4 +73,12 @@
 ;;; extract info from all messages
 (comment
   (channel-date-log "https://clojurians-log.clojureverse.org/beginners/2018-12-02"))
+
+;;; write all extracted messages into channel-named file.
+(defn channel-messages
+  "Extract all message a in channel's all dates and write into channel-named file."
+  [[channel-name channel-url]]
+  (map #(with-open [f (io/reader (str channel-name ".txt"))]
+          (spit f (channel-date-log %)))
+       (map second (channel-log-dates channel-url))))
 
