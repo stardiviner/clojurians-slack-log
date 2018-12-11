@@ -1,5 +1,7 @@
 (ns clojurians-slack-log.core
   (:require [clj-http.client :as http]
+            [net.cgrand.enlive-html :as html]
+            [clojure.string :as string]
 ;;; Define URLS
 (defonce url-index "https://clojurians-log.clojureverse.org/")
 (defonce url-channels "https://clojurians-log.clojureverse.org/")
@@ -19,3 +21,18 @@
   "A helper function to fetch URL's page as HTML"
   [url]
   (:body (http/get url)))
+
+;;; get all channels
+;;; https://clojurians-log.clojureverse.org/
+(defn all-channels
+  "Extract all channels from index page."
+  []
+  (map #(hash-map
+         (string/replace (html/text %) "# " "") ; channel name: "# clojure" -> "clojure"
+         (str url-index ; construct to complete URL
+              (first (html/attr-values % :href))))
+       (html/select (html/html-snippet (fetch-html url-channels))
+                    [:div.main :ul :li :a])))
+
+(comment (all-channels))
+
