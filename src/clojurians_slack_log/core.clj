@@ -95,7 +95,7 @@
                        :append true)))
              (channel-date-log %))
        (map :url (channel-log-dates channel-url)))
-  (prn (format "Log of channel %s: finished." channel-name)))
+  (prn (format "Channel [%s] exported." channel-name)))
 
 (comment
   (channel-messages {:name "beginners" :url url-channel-beginners}))
