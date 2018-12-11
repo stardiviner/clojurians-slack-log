@@ -53,3 +53,22 @@
   (channel-log-dates url-channel-beginners)
   (channel-log-dates (first (all-channels))))
 
+;;; parse channel date log page's message history
+;;; https://clojurians-log.clojureverse.org/beginners/2018-12-02
+(defn channel-date-log
+  "Extract message history from channel's date log."
+  [date-url]
+  (map
+   #(let [username  (html/text (first (html/select % [:a.message_username])))
+          timestamp (html/text (first (html/select % [:span.message_timestamp :a])))
+          header    (str username "  " timestamp)
+          message   (html/text (second (html/select % [:p])))]
+      [header message])
+   (html/select                         ; all messages
+    (html/html-snippet (fetch-html date-url))
+    [:div.message-history :div.message])))
+
+;;; extract info from all messages
+(comment
+  (channel-date-log "https://clojurians-log.clojureverse.org/beginners/2018-12-02"))
+
