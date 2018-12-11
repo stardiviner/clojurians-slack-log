@@ -1,6 +1,3 @@
-(ns clojurians-slack-log.core)
-
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+(ns clojurians-slack-log.core
+  (:require [clj-http.client :as http]
+            [net.cgrand.enlive-html :as html]))
