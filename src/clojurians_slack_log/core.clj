@@ -79,7 +79,8 @@
   "Extract all message a in channel's all dates and write into channel-named file."
   [[channel-name channel-url]]
   (map #(with-open [f (io/reader (str channel-name ".txt"))]
-          (spit f (channel-date-log %)))
+          (spit f (channel-date-log %))
+          (prn (format "Log of channel %s: finished.") channel-name))
        (map second (channel-log-dates channel-url))))
 
 (defn -main
