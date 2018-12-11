@@ -36,3 +36,20 @@
 
 (comment (all-channels))
 
+;;; parse channel page
+;;; https://clojurians-log.clojureverse.org/beginners
+(defn channel-log-dates
+  "Extract all date links in channel log page."
+  [channel-url]
+  (map #(let [date (html/text %) ; date
+              url  (str url-index                ; construct to complete URL
+                        (first (html/attr-values % :href)))]
+          [date url])
+       (html/select
+        (html/html-snippet (fetch-html url-channel-beginners))
+        [:div.main :ul :li :a])))
+
+(comment
+  (channel-log-dates url-channel-beginners)
+  (channel-log-dates (first (all-channels))))
+
