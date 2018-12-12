@@ -22,7 +22,7 @@
 (defn fetch-html
   "A helper function to fetch URL's page as HTML"
   [url]
-  (:body (http/get url)))
+  (:body (http/get url {:follow-redirects true})))
 
 ;;; get all channels
 ;;; https://clojurians-log.clojureverse.org/
