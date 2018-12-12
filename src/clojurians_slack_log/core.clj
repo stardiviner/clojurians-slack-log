@@ -2,7 +2,8 @@
   (:require [clj-http.client :as http]
             [net.cgrand.enlive-html :as html]
             [clojure.string :as string]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [me.raynes.fs :as fs]))
 
 ;;; Define URLS
 (defonce url-index "https://clojurians-log.clojureverse.org/")
@@ -105,4 +106,5 @@
 (defn -main
   "Run the crawler program."
   []
-  (run! channel-messages (all-channels)))
+  (doall io/delete-file (fs/glob (java.io.File. "log_files/") "*.txt"))
+  (doall channel-messages (all-channels)))

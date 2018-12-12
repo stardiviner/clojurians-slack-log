@@ -14,6 +14,8 @@
                  [clojure.java-time "0.3.2"]
                  ;; Redis
                  [com.taoensso/carmine "2.18.1"]
+                 ;; File
+                 [me.raynes/fs "1.4.6"]
                  ;; JDBC
                  [org.clojure/java.jdbc "0.7.8"]
                  ;; SQLite
