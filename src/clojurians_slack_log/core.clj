@@ -87,20 +87,22 @@
 (defn channel-messages
   "Extract all message a in channel's all dates and write into channel-named file."
   [{channel-name :name channel-url :url}]
-  (map #(map (fn [message]
-               (let [filename (str "log_files/" channel-name ".txt")]
-                 (io/make-parents filename)
-                 (spit filename
-                       (compose-message message)
-                       :append true)))
-             (channel-date-log %))
-       (map :url (channel-log-dates channel-url)))
+  (doall
+   (map #(dorun
+          (map (fn [message]
+                 (let [filename (str "log_files/" channel-name ".txt")]
+                   (io/make-parents filename)
+                   (spit filename
+                         (compose-message message)
+                         :append true)))
+               (channel-date-log %)))
+        (map :url (channel-log-dates channel-url))))
   (prn (format "Channel [%s] exported." channel-name)))
 
 (comment
-  (channel-messages {:name "beginners" :url url-channel-beginners}))
+  (channel-messages {:name "datavis" :url url-channel-datavis}))
 
 (defn -main
   "Run the crawler program."
   []
-  (map channel-messages (all-channels)))
+  (run! channel-messages (all-channels)))
