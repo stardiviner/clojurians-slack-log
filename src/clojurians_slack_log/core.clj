@@ -3,7 +3,8 @@
             [net.cgrand.enlive-html :as html]
             [clojure.string :as string]
             [clojure.java.io :as io]
-            [me.raynes.fs :as fs]))
+            [me.raynes.fs :as fs])
+  (:import (java.lang Thread)))
 
 ;;; Define URLS
 (defonce url-index "https://clojurians-log.clojureverse.org/")
@@ -96,7 +97,8 @@
                          :append true)))
                (channel-date-log %))
         (map :url (channel-log-dates channel-url)))
-  (prn (format "Channel [%s] exported." channel-name)))
+  (prn (format "Channel [%s] exported." channel-name))
+  (Thread/sleep (* 2 1000)))
 
 (comment
   (channel-messages {:name "datavis" :url url-channel-datavis}))
