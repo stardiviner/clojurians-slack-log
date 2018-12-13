@@ -7,7 +7,7 @@
   (:import (java.lang Thread)))
 
 ;;; Define URLS
-(defonce url-index "https://clojurians-log.clojureverse.org/")
+(defonce url-index "https://clojurians-log.clojureverse.org")
 (defonce url-channels "https://clojurians-log.clojureverse.org/")
 ;;; favourite channels
 (defonce url-channel-beginners "https://clojurians-log.clojureverse.org/beginners")
