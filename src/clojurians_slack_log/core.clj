@@ -57,7 +57,7 @@
                         (first (html/attr-values % :href)))]
           {:date date :url url})
        (html/select
-        (html/html-snippet (fetch-html url-channel-beginners))
+        (html/html-snippet (fetch-html channel-url))
         [:div.main :ul :li :a])))
 
 (comment
