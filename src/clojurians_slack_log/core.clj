@@ -24,7 +24,14 @@
 (defn fetch-html
   "A helper function to fetch URL's page as HTML"
   [url]
-  (:body (http/get url {:follow-redirects true})))
+  (try
+    (:body (http/get url {:follow-redirects true}))
+    (catch Exception e
+      (println (format "The URL: %s is not available." url)))))
+
+(comment
+  (http/get "https://clojurians-log.clojureverse.org/beginners/2018-10-27")
+  (fetch-html "https://clojurians-log.clojureverse.org/beginners/2018-10-27"))
 
 ;;; get all channels
 ;;; https://clojurians-log.clojureverse.org/
