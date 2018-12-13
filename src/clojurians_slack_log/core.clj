@@ -106,5 +106,5 @@
 (defn -main
   "Run the crawler program."
   []
-  (doall io/delete-file (fs/glob (java.io.File. "log_files/") "*.txt"))
+  (run! io/delete-file (fs/glob (java.io.File. "log_files/") "*.txt"))
   (run! channel-messages (all-channels)))
