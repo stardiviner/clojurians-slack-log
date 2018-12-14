@@ -3,7 +3,8 @@
             [net.cgrand.enlive-html :as html]
             [clojure.string :as string]
             [clojure.java.io :as io]
-            [me.raynes.fs :as fs])
+            [me.raynes.fs :as fs]
+            [taoensso.carmine :as redis :refer (wcar)])
   (:import (java.lang Thread)))
 
 ;;; Define URLS
@@ -112,8 +113,33 @@
 (comment
   (channel-messages {:name "datavis" :url url-channel-datavis}))
 
+;;; crawler sequence with Redis.
+(defonce redis-conn-pool {:pool {}
+                          :spec {:host "127.0.0.1" :port 6379}})
+
+(defmacro wcar* [& body] `(wcar redis-conn-pool ~@body))
+
+;;; detect Redis started?
+(defn check-redis-alive
+  "Check Redis server alive?"
+  []
+  (try
+    (wcar* (redis/ping))
+    (catch java.net.ConnectException e
+      (println "Can't connect to Redis server, it might not started, please start it."))
+    (catch Exception e
+      (println "Can't access Redis server, check it out."))
+    (finally true)))
+
+(comment
+  (wcar*
+   (redis/lset :slack/channels all-channels-list))
+  (wcar*
+   (redis/lpush :slack/kk ["a" "b"])))
+
 (defn -main
   "Run the crawler program."
   []
-  (run! io/delete-file (fs/glob (java.io.File. "log_files/") "*.txt"))
-  (run! channel-messages all-channels-list))
+  (when (check-redis-alive)
+    (run! io/delete-file (fs/glob (java.io.File. "log_files/") "*.txt"))
+    (run! channel-messages all-channels-list)))
