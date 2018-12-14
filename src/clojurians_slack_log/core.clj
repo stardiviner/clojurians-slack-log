@@ -37,7 +37,7 @@
 ;;; get all channels
 ;;; https://clojurians-log.clojureverse.org/
 (defn get-all-channels
-  "Extract all channels from index page."
+  "Extract all channels from index page and return map."
   []
   (map #(hash-map
          :name (string/replace (html/text %) "# " "") ; channel name: "# clojure" -> "clojure"
@@ -53,7 +53,7 @@
 ;;; parse channel page
 ;;; https://clojurians-log.clojureverse.org/beginners
 (defn channel-log-dates
-  "Extract all date links in channel log page."
+  "Extract all date links in channel log page and return map."
   [channel-url]
   (map #(let [date (html/text %) ; date
               url  (str url-index                ; construct to complete URL
@@ -64,13 +64,12 @@
         [:div.main :ul :li :a])))
 
 (comment
-  (channel-log-dates url-channel-beginners)
   (channel-log-dates (first all-channels-list)))
 
 ;;; parse channel date log page's message history
 ;;; https://clojurians-log.clojureverse.org/beginners/2018-12-02
 (defn channel-date-log
-  "Extract message history from channel's date log."
+  "Extract message history from channel's date log and return map."
   [date-url]
   (map
    #(let [username  (html/text (first (html/select % [:a.message_username])))
@@ -99,14 +98,14 @@
 (defn channel-messages
   "Extract all message a in channel's all dates and write into channel-named file."
   [{channel-name :name channel-url :url}]
-  (run! #(run! (fn [message]
-                 (let [filename (str "log_files/" channel-name ".txt")]
-                   (io/make-parents filename)
-                   (spit filename
-                         (compose-message message)
-                         :append true)))
-               (channel-date-log %))
-        (map :url (channel-log-dates channel-url)))
+  (doseq [date (map #(->> %
+                          :date
+                          (re-find #"\d{4}-\d{2}-\d{2}"))
+                    (channel-log-dates channel-url))]
+    (let [filename (str (format "log_files/%s/%s" channel-name date) ".txt")]
+      (io/make-parents filename)
+      (doseq [message (channel-date-log (str channel-url "/" date))]
+        (spit filename (compose-message message) :append true))))
   (prn (format "Channel [%s] exported." channel-name))
   (Thread/sleep (* 2 1000)))
 
@@ -142,4 +141,5 @@
   []
   (when (check-redis-alive)
     (run! io/delete-file (fs/glob (java.io.File. "log_files/") "*.txt"))
-    (run! channel-messages all-channels-list)))
+    (doseq [channel-url all-channels-list]
+      (channel-messages channel-url))))
