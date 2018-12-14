@@ -89,7 +89,7 @@
 (defn compose-message
   "Compose username, timestamp and message content into a formatted message."
   [{username :username timestamp :timestamp content :content}]
-  (str "---------------------------------------------------------------\n"
+  (str "===============================================================\n"
        (str "> " username "  " timestamp "\n")
        "---------------------------------------------------------------\n"
        (str content "\n")))
