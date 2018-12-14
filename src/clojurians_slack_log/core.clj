@@ -35,7 +35,7 @@
 
 ;;; get all channels
 ;;; https://clojurians-log.clojureverse.org/
-(defn all-channels
+(defn get-all-channels
   "Extract all channels from index page."
   []
   (map #(hash-map
@@ -45,7 +45,9 @@
        (html/select (html/html-snippet (fetch-html url-channels))
                     [:div.main :ul :li :a])))
 
-(comment (all-channels))
+(defonce all-channels-list (doall (get-all-channels)))
+
+(comment (get-all-channels))
 
 ;;; parse channel page
 ;;; https://clojurians-log.clojureverse.org/beginners
@@ -62,7 +64,7 @@
 
 (comment
   (channel-log-dates url-channel-beginners)
-  (channel-log-dates (first (all-channels))))
+  (channel-log-dates (first all-channels-list)))
 
 ;;; parse channel date log page's message history
 ;;; https://clojurians-log.clojureverse.org/beginners/2018-12-02
@@ -114,4 +116,4 @@
   "Run the crawler program."
   []
   (run! io/delete-file (fs/glob (java.io.File. "log_files/") "*.txt"))
-  (run! channel-messages (all-channels)))
+  (run! channel-messages all-channels-list))
