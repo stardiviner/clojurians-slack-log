@@ -46,9 +46,24 @@
        (html/select (html/html-snippet (fetch-html url-channels))
                     [:div.main :ul :li :a])))
 
-(defonce all-channels-list (doall (get-all-channels)))
+(defn put-all-channel-entry-into-redis
+  "Push all channel URLs into Redis."
+  []
+  ;; clear old key values.
+  (wcar*
+   (redis/del :slack/channel-urls))
+  ;; push channels name and URL into `:slack/channel-urls`.
+  (doseq [channel (doall (get-all-channels))]
+    (wcar*
+     (redis/hset :slack/channel-urls (:name channel) (:url channel)))))
 
-(comment (get-all-channels))
+(comment
+  ;; get URL through string key in Redis Hash.
+  (wcar*
+   (redis/hget
+    :slack/channel-urls
+    (first (wcar*
+            (redis/hkeys :slack/channel-urls))))))
 
 ;;; parse channel page
 ;;; https://clojurians-log.clojureverse.org/beginners
@@ -64,7 +79,7 @@
         [:div.main :ul :li :a])))
 
 (comment
-  (channel-log-dates (first all-channels-list)))
+  (channel-log-dates "https://clojurians-log.clojureverse.org/beginners"))
 
 ;;; parse channel date log page's message history
 ;;; https://clojurians-log.clojureverse.org/beginners/2018-12-02
@@ -130,16 +145,12 @@
       (println "Can't access Redis server, check it out."))
     (finally true)))
 
-(comment
-  (wcar*
-   (redis/lset :slack/channels all-channels-list))
-  (wcar*
-   (redis/lpush :slack/kk ["a" "b"])))
-
 (defn -main
   "Run the crawler program."
   []
   (when (check-redis-alive)
     (run! io/delete-file (fs/glob (java.io.File. "log_files/") "*.txt"))
-    (doseq [channel-url all-channels-list]
-      (channel-messages channel-url))))
+    (put-all-channel-entry-into-redis)
+    (for [channel-name (wcar* (redis/hkeys :slack/channel-urls))
+          :when        (not (empty? channel-name))]
+      (channel-messages (wcar* (redis/hget :slack/channel-urls channel-name))))))
